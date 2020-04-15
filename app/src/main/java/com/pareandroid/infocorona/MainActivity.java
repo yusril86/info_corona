@@ -8,6 +8,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.pareandroid.infocorona.Adapter.AdapterDetail;
@@ -16,32 +18,37 @@ import com.pareandroid.infocorona.Api.ApiConfig;
 import com.pareandroid.infocorona.Api.ApiInterface;
 import com.pareandroid.infocorona.Model.ModelIndonesia;
 import com.pareandroid.infocorona.Model.ModelJumlahIndonesia;
+import com.pareandroid.infocorona.Presenter.ProvinsiPresenter;
+import com.pareandroid.infocorona.View.ProvinsiView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    RecyclerView recyclerView,recyclerView1;
+public class MainActivity extends AppCompatActivity implements ProvinsiView {
+    RecyclerView recyclerViewProv,recyclerViewdetail;
     private RecyclerView.Adapter Radapterprovinsi,RadapterJumlah;
     AdapterInfoIndonesia adapterInfoIndonesia;
     AdapterDetail adapterDetail;
     List<ModelJumlahIndonesia> modelJumlahIndonesias;
     List<ModelIndonesia> modelIndonesias;
     ApiInterface apiInterface;
+    ProgressBar progressBar;
+    ProvinsiPresenter provinsiPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.rv_list);
-        recyclerView1 = findViewById(R.id.rv_list_detail);
+        recyclerViewProv = findViewById(R.id.rv_list);
+        recyclerViewdetail = findViewById(R.id.rv_list_detail);
+        progressBar = findViewById(R.id.pg_loadaing);
 
 
          apiInterface = ApiConfig.getapi().create(ApiInterface.class);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        recyclerView1.setLayoutManager(linearLayoutManager);
-        recyclerView1.setHasFixedSize(true);
+        recyclerViewdetail.setLayoutManager(linearLayoutManager);
+        recyclerViewdetail.setHasFixedSize(true);
         tampiljumlah();
 
 
@@ -49,15 +56,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(this);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(linearLayoutManager1);
-        tampilprovinsi();
-
+        recyclerViewProv.setHasFixedSize(true);
+        recyclerViewProv.setLayoutManager(linearLayoutManager1);
+        provinsiPresenter = new ProvinsiPresenter(this);
+        provinsiPresenter.tampilprovinsi();
 
 
     }
 
-
+    //Data Indonesia Saya Menggunakan dengan Cara Manual
     private void tampiljumlah (){
 
         Call<List<ModelJumlahIndonesia>> modeljumlah = apiInterface.getJumlahIndonesia();
@@ -66,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<List<ModelJumlahIndonesia>> call, Response<List<ModelJumlahIndonesia>> response) {
                 List<ModelJumlahIndonesia> modelJumlahIndonesias = response.body();
                 RadapterJumlah = new AdapterDetail(modelJumlahIndonesias);
-                recyclerView1.setAdapter(RadapterJumlah);
+                recyclerViewdetail  .setAdapter(RadapterJumlah);
             }
 
             @Override
@@ -76,7 +83,34 @@ public class MainActivity extends AppCompatActivity {
         });
      }
 
-    public void tampilprovinsi(){
+
+     //Data Provinsi saya Menggunakan MVP
+
+         @Override
+         public void Showloadinng () {
+             progressBar.setVisibility(View.VISIBLE);
+         }
+
+         @Override
+         public void hideLoading () {
+             progressBar.setVisibility(View.GONE);
+             recyclerViewProv.setVisibility(View.VISIBLE);
+         }
+
+         @Override
+         public void Onresponse (List < ModelIndonesia > modelIndonesias) {
+             Radapterprovinsi = new AdapterInfoIndonesia(modelIndonesias);
+             recyclerViewProv.setAdapter(Radapterprovinsi);
+         }
+
+         @Override
+         public void OnFailure (String message){
+            Toast.makeText(this,"Error...",Toast.LENGTH_SHORT).show();
+         }
+
+
+
+   /* public void tampilprovinsi(){
         Call<List<ModelIndonesia>> modelIndonesiaCall = apiInterface.getDataIndonesia();
         modelIndonesiaCall.enqueue(new Callback<List<ModelIndonesia>>() {
             @Override
@@ -92,7 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
+
 
 
 }

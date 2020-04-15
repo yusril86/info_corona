@@ -12,7 +12,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
-
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/colorPrimary"
+            android:layout_gravity="center"
+            android:id="@+id/pg_loadaing"
+            />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_list_detail"
             android:layout_width="match_parent"
